@@ -12,6 +12,7 @@ import EInvoicingHAndM from "./pages/EInvoicingHAndM";
 import ExpDownload from "./pages/ExpDownload";
 import ExpDuplication from "./pages/ExpDuplication";
 import { RexIssuance } from "./pages/RexIssuance";
+import Nav from "./components/Nav";
 function App() {
   return (
     <>
@@ -19,10 +20,15 @@ function App() {
 
       <BrowserRouter>
         <AppContextProvider>
+          {/* <Nav> */}
           <Routes>
             <Route
               path="/"
-              element={<Navigate to="/dashboard"></Navigate>}
+              element={
+                <Nav>
+                  <Navigate to="/dashboard"></Navigate>
+                </Nav>
+              }
             ></Route>
             <Route path="/login" element={<Login />}></Route>
             {/* ✅ Protected routes */}
@@ -30,7 +36,9 @@ function App() {
               path="/dashboard"
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <Nav>
+                    <Dashboard />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -39,7 +47,9 @@ function App() {
               path="/cogsa-safta"
               element={
                 <ProtectedRoute>
-                  <CoGsaSafta />
+                  <Nav>
+                    <CoGsaSafta />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -48,7 +58,9 @@ function App() {
               path="/edoc-upload-handm"
               element={
                 <ProtectedRoute>
-                  <EDocUploadHandM />
+                  <Nav>
+                    <EDocUploadHandM />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -57,7 +69,9 @@ function App() {
               path="/fcr-submission"
               element={
                 <ProtectedRoute>
-                  <FcrSubmission />
+                  <Nav>
+                    <FcrSubmission />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -66,7 +80,9 @@ function App() {
               path="/einvoicing-handm"
               element={
                 <ProtectedRoute>
-                  <EInvoicingHAndM />
+                  <Nav>
+                    <EInvoicingHAndM />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -75,7 +91,9 @@ function App() {
               path="/exp-download"
               element={
                 <ProtectedRoute>
-                  <ExpDownload />
+                  <Nav>
+                    <ExpDownload />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -84,7 +102,9 @@ function App() {
               path="/exp-duplication"
               element={
                 <ProtectedRoute>
-                  <ExpDuplication />
+                  <Nav>
+                    <ExpDuplication />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
@@ -93,11 +113,14 @@ function App() {
               path="/rex-issuance"
               element={
                 <ProtectedRoute>
-                  <RexIssuance />
+                  <Nav>
+                    <RexIssuance />
+                  </Nav>
                 </ProtectedRoute>
               }
             />
           </Routes>
+          {/* </Nav> */}
         </AppContextProvider>
       </BrowserRouter>
     </>

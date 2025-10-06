@@ -1,13 +1,20 @@
-import { useState, type FormEvent } from "react";
+import { useContext, useState, type FormEvent } from "react";
 import logo from "../assets/RPA white.png";
+import { AppContext } from "../context/AppContext";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { setToken } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log(username);
     console.log(password);
+    localStorage.setItem("token", "test");
+    setToken("test");
+    navigate("/dashboard");
   };
 
   return (
