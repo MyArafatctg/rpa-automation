@@ -1,11 +1,36 @@
-import { useState, type FormEvent } from "react";
+import { useContext, useState, type FormEvent } from "react";
 import logo from "../assets/RPA white.png";
+import { toast } from "react-toastify";
+import { AppContext } from "../context/AppContext";
+import { Link, useNavigate } from "react-router-dom";
+import cookie from "js-cookie";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const { setToken } = useContext(AppContext);
+  const navigate = useNavigate();
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!username) {
+      toast.error("Username is required");
+      return;
+    }
+    if (!password) {
+      toast.error("Password is required");
+      return;
+    }
+
+    setToken("dummy-token");
+    localStorage.setItem("token", "dummy-token");
+    cookie.set("token", "dummy-token");
+    toast.success("Login successful");
+
+    // Navigate to the dashboard or another page
+    navigate("/dashboard");
+
+    // For demonstration, just log the values
+
     console.log(username);
     console.log(password);
   };
@@ -65,6 +90,12 @@ const Login = () => {
             >
               Get Started
             </button>
+          </div>
+          <div className="text-center">
+            <span className="text-gray-700">Don't have an account? </span>
+            <Link to="/signup" className="text-teal-600">
+              Sign Up
+            </Link>
           </div>
         </form>
       </div>

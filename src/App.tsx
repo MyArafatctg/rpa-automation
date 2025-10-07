@@ -12,6 +12,7 @@ import EInvoicingHAndM from "./pages/EInvoicingHAndM";
 import ExpDownload from "./pages/ExpDownload";
 import ExpDuplication from "./pages/ExpDuplication";
 import { RexIssuance } from "./pages/RexIssuance";
+import Navbar from "./components/Navbar";
 function App() {
   return (
     <>
@@ -19,6 +20,7 @@ function App() {
 
       <BrowserRouter>
         <AppContextProvider>
+          <Navbar />
           <Routes>
             <Route
               path="/"

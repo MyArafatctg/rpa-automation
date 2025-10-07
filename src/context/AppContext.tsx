@@ -1,5 +1,4 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
 
 // Define the shape of your context value
 interface AppContextType {
@@ -10,7 +9,7 @@ interface AppContextType {
 // ✅ Create the context (no namespace issue)
 export const AppContext = createContext<AppContextType>({
   token: "",
-  setToken: () => {},
+  setToken: (_: string) => {},
 });
 
 // Props for the Provider
@@ -20,7 +19,6 @@ interface AppContextProviderProps {
 
 export const AppContextProvider = ({ children }: AppContextProviderProps) => {
   const [token, setToken] = useState("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
