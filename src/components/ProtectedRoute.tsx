@@ -8,17 +8,10 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { token } = useContext(AppContext);
-<<<<<<< HEAD
   // const storedToken = localStorage.getItem("token");
   const storedToken = cookie.get("token");
-
   // If no token, redirect to login page
   console.log("ProtectedRoute token:", token);
-=======
-  const storedToken = localStorage.getItem("token");
-
-  // If no token, redirect to login page
->>>>>>> 56cdd21eb84155c91715912545e40d3452d60d1f
   if (!storedToken) {
     return <Navigate to="/login" replace />;
   }

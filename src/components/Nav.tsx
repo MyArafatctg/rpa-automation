@@ -21,12 +21,19 @@ function Nav({ children }: NavProps) {
       {/* Header */}
       <header className="h-12 bg-blue-500 flex items-center justify-between px-4 text-white font-semibold sticky top-0 z-10">
         {/* Hamburger Menu */}
-        <button
-          onClick={() => setShowSidebar(!showSidebar)}
-          className="text-xl focus:outline-none hover:cursor-pointer"
-        >
-          <FaBars />
-        </button>
+        <div className="inline-flex items-center space-x-4">
+          <button
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="text-xl focus:outline-none hover:cursor-pointer"
+          >
+            <FaBars />
+          </button>
+          <div className="relative">
+            <h1 className="text-lg">APR Automation</h1>
+          </div>
+        </div>
+
+        {/* Sign Out */}
         {isToken && (
           <button
             type="button"
@@ -55,11 +62,88 @@ function Nav({ children }: NavProps) {
                     to="/"
                     className="block hover:text-blue-400 cursor-pointer"
                   >
-                    Home
+                    Dashboard
                   </Link>
                 </li>
 
-                {/* Dropdown */}
+                <li>
+                  <Link
+                    to="/rex-issuance"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    Rex Issuance
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/exp-download"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    Exp Download
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/cogsa-safta"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    CO/GSA/SAFTA
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/exp-duplication"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    Exp Duplication
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/edoc-upload-handm"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    E-Doc Upload (H&M)
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/einvoicing-handm"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    E-Invoicing (H&M)
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/fcr-submission"
+                    className="block hover:text-blue-400 cursor-pointer"
+                  >
+                    FCR Submission
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+          </aside>
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 overflow-y-auto bg-gray-50">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+export default Nav;
+
+{
+  /* Dropdown 
                 <li className="group">
                   <button
                     onClick={() => setOpenMenu(!openMenu)}
@@ -71,7 +155,7 @@ function Nav({ children }: NavProps) {
                     </span>
                   </button>
 
-                  {/* Show submenu when openMenu true */}
+                  Show submenu when openMenu true 
                   {openMenu && (
                     <ul className="pl-4 mt-1 space-y-1">
                       <li>
@@ -93,35 +177,5 @@ function Nav({ children }: NavProps) {
                     </ul>
                   )}
                 </li>
-
-                <li>
-                  <Link
-                    to="/rex-issuance"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
-                    About
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/exp-download"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
-                    Contact
-                  </Link>
-                </li>
-              </ul>
-            </nav>
-          </aside>
-        )}
-
-        {/* Main Content */}
-        <main className="flex-1 p-4 overflow-y-auto bg-gray-50">
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+                */
 }
-
-export default Nav;
