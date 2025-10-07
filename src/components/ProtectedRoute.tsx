@@ -8,9 +8,10 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   const { token } = useContext(AppContext);
+  const storedToken = localStorage.getItem("token");
 
   // If no token, redirect to login page
-  if (!token) {
+  if (!storedToken) {
     return <Navigate to="/login" replace />;
   }
 
