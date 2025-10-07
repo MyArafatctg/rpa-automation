@@ -33,6 +33,9 @@ const Login = () => {
 
     console.log(username);
     console.log(password);
+    localStorage.setItem("token", "test");
+    setToken("test");
+    navigate("/dashboard");
   };
 
   return (
