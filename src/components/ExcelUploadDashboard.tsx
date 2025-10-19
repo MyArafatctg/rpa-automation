@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef } from "react";
 import * as XLSX from "xlsx";
+import type { RowsData } from "./ExcelReport";
 
 // Define the component's state type
 interface UploadState {
@@ -10,7 +11,7 @@ interface UploadState {
 const ExcelUploadDashboard = ({
   onData,
 }: {
-  onData: (data: any[]) => void;
+  onData: (data: RowsData[]) => void;
 }) => {
   const [state, setState] = useState<UploadState>({
     isDragging: false,
@@ -47,7 +48,7 @@ const ExcelUploadDashboard = ({
         const wb = XLSX.read(arrayBuffer, { type: "array" });
         const wsname = wb.SheetNames[0];
         const ws = wb.Sheets[wsname];
-        const jsonData = XLSX.utils.sheet_to_json(ws);
+        const jsonData: RowsData[] = XLSX.utils.sheet_to_json(ws);
         onData(jsonData);
       };
       reader.readAsArrayBuffer(file);

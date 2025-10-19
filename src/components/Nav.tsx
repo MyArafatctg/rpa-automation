@@ -1,6 +1,14 @@
 import React, { useState, type ReactNode } from "react";
 import { FaAngleDown, FaAngleUp, FaBars, FaSignOutAlt } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+
+// helper for consistent link classes
+const navLinkClass = ({ isActive }: { isActive: boolean }) =>
+  `block p-2 cursor-pointer rounded transition-colors duration-150 ${
+    isActive
+      ? "bg-teal-600 text-white"
+      : "text-white hover:bg-teal-600 hover:text-white"
+  }`;
 
 type NavProps = {
   children: ReactNode;
@@ -19,7 +27,7 @@ function Nav({ children }: NavProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="h-12 bg-blue-500 flex items-center justify-between px-4 text-white font-semibold sticky top-0 z-10">
+      <header className="h-12 bg-teal-600 flex items-center justify-between px-4 text-white font-semibold sticky top-0 z-10">
         {/* Hamburger Menu */}
         <div className="inline-flex items-center space-x-4">
           <button
@@ -29,7 +37,7 @@ function Nav({ children }: NavProps) {
             <FaBars />
           </button>
           <div className="relative">
-            <h1 className="text-lg">APR Automation</h1>
+            <h1 className="text-lg">RPA Automation</h1>
           </div>
         </div>
 
@@ -51,80 +59,56 @@ function Nav({ children }: NavProps) {
         {/* Sidebar */}
         {showSidebar && (
           <aside
-            className={`bg-neutral-800 text-white h-[calc(100vh-3rem)] overflow-y-auto sticky top-12 self-start transition-all ease-in-out ${
+            className={`bg-gray-900 text-white h-[calc(100vh-3rem)] overflow-y-auto sticky top-12 self-start transition-all ease-in-out ${
               showSidebar ? "w-60" : "w-0"
             }`}
           >
             <nav className="p-4">
               <ul className="space-y-2">
                 <li>
-                  <Link
-                    to="/"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/dashboard" className={navLinkClass}>
                     Dashboard
-                  </Link>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link
-                    to="/rex-issuance"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/rex-issuance" className={navLinkClass}>
                     Rex Issuance
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link
-                    to="/exp-download"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/exp-download" className={navLinkClass}>
                     Exp Download
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link
-                    to="/cogsa-safta"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/cogsa-safta" className={navLinkClass}>
                     CO/GSA/SAFTA
-                  </Link>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link
-                    to="/exp-duplication"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/exp-duplication" className={navLinkClass}>
                     Exp Duplication
-                  </Link>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link
-                    to="/edoc-upload-handm"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/edoc-upload-handm" className={navLinkClass}>
                     E-Doc Upload (H&M)
-                  </Link>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link
-                    to="/einvoicing-handm"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/einvoicing-handm" className={navLinkClass}>
                     E-Invoicing (H&M)
-                  </Link>
+                  </NavLink>
                 </li>
 
                 <li>
-                  <Link
-                    to="/fcr-submission"
-                    className="block hover:text-blue-400 cursor-pointer"
-                  >
+                  <NavLink to="/fcr-submission" className={navLinkClass}>
                     FCR Submission
-                  </Link>
+                  </NavLink>
                 </li>
               </ul>
             </nav>
