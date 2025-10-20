@@ -1,56 +1,54 @@
 import ExcelUploadDashboard from "../components/ExcelUploadDashboard";
-import ExcelReport from "../components/ExcelReport";
 import { useState } from "react";
-import type { RowsData } from "../components/ExcelReport";
 import RpaActivities from "../components/RpaActivities";
 import type { ReportRow } from "../components/ReportTable";
 import ReportTable from "../components/ReportTable";
 
-const mockReportData: ReportRow[] = [
-  {
-    id: 1,
-    status: "Completed",
-    name: "Record 1",
-    email: "user1@example.com",
-    company: "Company A",
-    time: "3.33s",
-  },
-  {
-    id: 2,
-    status: "Processing",
-    name: "Record 2",
-    email: "user2@example.com",
-    company: "Company B",
-    time: "2.45s",
-  },
-  {
-    id: 3,
-    status: "Completed",
-    name: "Record 3",
-    email: "user3@example.com",
-    company: "Company C",
-    time: "3.71s",
-  },
-  {
-    id: 4,
-    status: "Completed",
-    name: "Record 4",
-    email: "user4@example.com",
-    company: "Company D",
-    time: "2.55s",
-  },
-  {
-    id: 5,
-    status: "Error",
-    name: "Record 5",
-    email: "user5@example.com",
-    company: "Company E",
-    time: "1.98s",
-  },
-];
+// const mockReportData: ReportRow[] = [
+//   {
+//     id: 1,
+//     status: "Completed",
+//     name: "Record 1",
+//     email: "user1@example.com",
+//     company: "Company A",
+//     time: "3.33s",
+//   },
+//   {
+//     id: 2,
+//     status: "Processing",
+//     name: "Record 2",
+//     email: "user2@example.com",
+//     company: "Company B",
+//     time: "2.45s",
+//   },
+//   {
+//     id: 3,
+//     status: "Completed",
+//     name: "Record 3",
+//     email: "user3@example.com",
+//     company: "Company C",
+//     time: "3.71s",
+//   },
+//   {
+//     id: 4,
+//     status: "Completed",
+//     name: "Record 4",
+//     email: "user4@example.com",
+//     company: "Company D",
+//     time: "2.55s",
+//   },
+//   {
+//     id: 5,
+//     status: "Error",
+//     name: "Record 5",
+//     email: "user5@example.com",
+//     company: "Company E",
+//     time: "1.98s",
+//   },
+// ];
 
 export const RexIssuance = () => {
-  const [excelData, setExcelData] = useState<RowsData[]>([]);
+  const [excelData, setExcelData] = useState<ReportRow[]>([]);
 
   return (
     <div>
@@ -65,7 +63,7 @@ export const RexIssuance = () => {
 
           <div className="inline-flex flex-items-center gap-6 w-full">
             <div className="w-1/2">
-              <ReportTable data={mockReportData} />
+              <ReportTable data={excelData} />
             </div>
             <div className="w-1/2">
               <RpaActivities />

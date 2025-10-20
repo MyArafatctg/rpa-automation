@@ -160,15 +160,18 @@ const ReportTable = ({ data }: { data: ReportRow[] }) => {
                     <span className="text-gray-200 ml-1">{row.status}</span>
                   </span>
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-200">
                   {row.name}
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                   {row.email}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
                   {row.company}
                 </td>
+
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400 font-mono flex items-center">
                   <svg
                     className="w-4 h-4 mr-1 text-gray-500"
