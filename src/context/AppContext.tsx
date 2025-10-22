@@ -1,15 +1,19 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 
+const BASE_URL = "http://localhost:8080";
+
 // Define the shape of your context value
 interface AppContextType {
   token: string;
   setToken: (token: string) => void;
+  BASE_URL: string;
 }
 
 // ✅ Create the context (no namespace issue)
 export const AppContext = createContext<AppContextType>({
   token: "",
   setToken: (_: string) => {},
+  BASE_URL: BASE_URL,
 });
 
 // Props for the Provider
@@ -27,7 +31,7 @@ export const AppContextProvider = ({ children }: AppContextProviderProps) => {
     }
   }, []);
 
-  const value: AppContextType = { token, setToken };
+  const value: AppContextType = { token, setToken, BASE_URL };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

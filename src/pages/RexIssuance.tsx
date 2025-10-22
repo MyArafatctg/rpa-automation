@@ -65,9 +65,7 @@ export const RexIssuance = () => {
             <div className="w-1/2">
               <ReportTable data={excelData} />
             </div>
-            <div className="w-1/2">
-              <RpaActivities />
-            </div>
+            <div className="w-1/2">{/* <RpaActivities /> */}</div>
           </div>
         </>
       )) || <ExcelUploadDashboard onData={setExcelData} />}
