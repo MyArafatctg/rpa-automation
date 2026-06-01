@@ -1,0 +1,108 @@
+ [
+      {
+        "subMenus": [
+          {
+            "link": "/dashboard",
+            "childIcon": "N/A",
+            "title": "Dashboard"
+          }
+        ],
+        "parentIcon": "LuLayoutDashboard",
+        "title": "Dashboard"
+      },
+      {
+      "subMenus": [
+         {
+             "subMenus": [
+              {
+                "link": "/einvoicing-handm",
+                "childIcon": "N/A",
+                "title": "H&M"
+              },
+              {
+                "link": "/invoice-download",
+                "childIcon": "N/A",
+                "title": "H&M Invoice Download"
+              }
+        ],
+        "parentIcon": "FaRegArrowAltCircleRight",
+        "title": "E-Invoicing"
+        },
+          {
+            "link": "/fcr-submission",
+            "childIcon": "N/A",
+            "title": "FCR Submission"
+          },
+          {
+            "link": "/edoc-upload-handm",
+            "childIcon": "N/A",
+            "title": "E-DOC Upload"
+          },
+          {
+            "link": "/exp-duplication",
+            "childIcon": "N/A",
+            "title": "EXP Duplication"
+          },
+          {
+            "link": "/exp-download",
+            "childIcon": "N/A",
+            "title": "EXP Download"
+          },
+          {
+            "link": "/container-tracking",
+            "childIcon": "N/A",
+            "title": "Container Tracking"
+          },
+          {
+            "link": "/under-development",
+            "childIcon": "N/A",
+            "title": "REX Issuance"
+          },
+          {
+            "link": "/under-development", 
+            "childIcon": "N/A",
+            "title": "CO/GSA/SAFTA"
+          },
+          {
+             "subMenus": [
+             {
+                "link": "/payment-advice-handm",
+                "childIcon": "N/A",
+                "title": "Payment Advice (H&M)"
+            }
+        ],
+        "parentIcon": "FaRegArrowAltCircleRight",
+        "title": "Data Processing"
+        }
+        ],
+        "parentIcon": "FaArrowAltCircleUp",
+        "title": "Export"
+      },
+      {
+      "subMenus": [
+          {
+             "subMenus": [
+             {
+                "link": "/lc_dashboard",
+                "childIcon": "N/A",
+                "title": "Dashboard"
+            },
+            {
+                "link": "/lc_list",
+                "childIcon": "N/A",
+                "title": "Details"
+            }
+        ],
+        "parentIcon": "FaRegArrowAltCircleRight",
+        "title": "LC"
+        },
+        {
+            "link": "/hsbc-trade",
+            "childIcon": "N/A",
+            "title": "HSBC Trade Solution"
+        }
+        ],
+        "parentIcon": "FaArrowAltCircleDown",
+        "title": "Import"
+      }
+    ]

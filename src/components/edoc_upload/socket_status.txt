@@ -1,0 +1,9 @@
+📩 BOT Log: {'event': 'row_start', 'row': 1, 'Booking_confirmation_number': 'CTG3333622', 'bot_status': 'Running Tasks', 'client_id': '101763'}
+📩 BOT Log: {'event': 'row_start_Done', 'row': 1, 'Booking_confirmation_number': 'CTG3333622', 'bot_status': 'Completed', 'client_id': '101763'}
+📩 BOT Log: {'event': 'row_done', 'data': {'Shipper': '7542', 'Consignee': '197544', 'Booking_confirmation_number': 'CTG3333622', 'File_Path': '\\\\192.168.4.3\\g\\Zia System\\RPA\\RONY COMMERCIAL\\New folder (5)\\515536 DEW004.pdf', 'File_Name': '515536 DEW004.pdf', 'Upload_Type': '38', 'Status': 'Success', 'Err_Description': '', 'Elapsed_Time': 20.97, 'Timestamp': '2025-12-08 15:56:39'}, 'client_id': '101763'}
+📩 BOT Log: {'event': 'row_start', 'row': 2, 'Booking_confirmation_number': 'CTG3333798', 'bot_status': 'Running Tasks', 'client_id': '101763'}
+📩 BOT Log: {'event': 'row_start_Done', 'row': 2, 'Booking_confirmation_number': 'CTG3333798', 'bot_status': 'Completed', 'client_id': '101763'}
+📩 BOT Log: {'event': 'row_done', 'data': {'Shipper': '7542', 'Consignee': '197544', 'Booking_confirmation_number': 'CTG3333798', 'File_Path': '\\\\192.168.4.3\\g\\Zia System\\RPA\\RONY COMMERCIAL\\New folder (5)\\506974 DEW004.pdf', 'File_Name': '506974 DEW004.pdf', 'Upload_Type': '38', 'Status': 'Success', 'Err_Description': '', 'Elapsed_Time': 21.04, 'Timestamp': '2025-12-08 15:57:00'}, 'client_id': '101763'}
+📩 BOT Log: {'event': 'bot_complete', 'excel_log': 'D:\\RPA\\logs\\EXP_eDoc_Upload_(H&M)_Log_2025-12-08_2.xlsx', 'bot_status': 'BOT Complete', 'client_id': '101763'}
+🔴 BOT Disconnected from Live Log WS
+←[32mINFO←[0m:     connection closed

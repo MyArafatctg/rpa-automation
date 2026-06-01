@@ -1,0 +1,720 @@
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import axios from "axios";
+import JobSummaryCard from "../cards/JobSummaryCard";
+import SettingsForm, {
+  type SettingData,
+} from "../util/setting_form/SettingsForm";
+import { toast } from "react-toastify";
+import { LiveSocket } from "../../customHook/liveSocket";
+import StatusBadge from "../util/StatusBadge";
+
+export interface ExpReportRow {
+  ADSCODE: string;
+  EXP_Serial: string;
+  EXP_Year: string;
+  Invoice_No: string;
+  Status: "Processing" | "Fail" | "Pending" | "Success" | "Downloading";
+  Err_Description: string | null;
+  Elapsed_Time: string | null;
+}
+
+const statusStyles: Record<ExpReportRow["Status"], string> = {
+  Processing: "text-blue-800",
+  Fail: "text-red-800",
+  Pending: "text-yellow-800",
+  Success: "text-green-800",
+  Downloading: "text-blue-700",
+};
+
+// --- COMPONENT START ---
+
+const ExpDownloadReport: React.FC<{
+  data: ExpReportRow[];
+  fileName: string;
+}> = ({ data, fileName }) => {
+  const { BASE_URL, BACKEND_URL, clientId } = useContext(AppContext);
+  const [rows, setRows] = useState<ExpReportRow[]>(data);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDbUpdated, setIsDbUpdated] = useState(false);
+  const [socket, setSocket] = useState<LiveSocket | null>(null);
+
+  // const { username, password } = USER_CREDENTIALS;
+  const [time, setTime] = useState(0);
+
+  //Setting Forms
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // convertor
+  const convertToExpReportRows = (data: any[]): ExpReportRow[] => {
+    return data.map((item) => ({
+      ADSCODE: item.ADSCODE ?? "",
+      EXP_Serial: item.EXP_Serial ?? "",
+      EXP_Year: item.EXP_Year ?? "",
+      Invoice_No: item.invoice_no ?? "",
+      Status: (item.Status as ExpReportRow["Status"]) ?? "Pending",
+      Err_Description: item.Err_Description || null,
+      Elapsed_Time: item.Elapsed_Time ? String(item.Elapsed_Time) : null,
+    }));
+  };
+
+  // Update rows when data prop changes (initial load)
+  useEffect(() => {
+    setRows(data);
+  }, [data]);
+
+  // Update rows when data prop changes (initial load)
+  useEffect(() => {
+    if (!rows || rows.length === 0) {
+      setTime(0);
+      return;
+    }
+
+    // Sum all elapsed seconds
+    const totalSeconds = rows.reduce((acc, row) => {
+      const seconds = Number(row.Elapsed_Time); // convert string to number
+      return acc + (isNaN(seconds) ? 0 : seconds);
+    }, 0);
+
+    setTime(totalSeconds);
+  }, [rows]);
+
+  const handleRunBot = async () => {
+    setIsModalOpen(true);
+  };
+
+  const runBot = async (settingData: SettingData) => {
+    const filterData = rows.filter((r) => r.Status != "Success");
+    console.log("filterData : ", JSON.stringify(filterData));
+    if (filterData.length < 1) {
+      toast.error("No pending row found!");
+      return;
+    }
+    let logFileName;
+
+    const formData = new FormData();
+    formData.append("client_id", clientId);
+    formData.append("filename", fileName);
+    formData.append("username", settingData.username);
+    formData.append("password", settingData.password);
+    formData.append("botfile", "ExpDownload");
+    formData.append("folder", settingData.folder);
+    formData.append("excel_json", JSON.stringify(filterData));
+    formData.append("headless", "false");
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/start-run-json`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("RPA process initiated:", response);
+      logFileName = response.data.json_log_path;
+    } catch (error) {
+      console.error("Error initiating RPA process:", error);
+    }
+    console.log("Run BOT clicked");
+    setIsProcessing(true);
+    // Simulate processing delay
+    setTimeout(() => {
+      // Update all "Pending" rows to "Processing"
+      setRows((prevRows) =>
+        prevRows.map((r) =>
+          r.Status != "Success" ? { ...r, Status: "Processing" } : r
+        )
+      );
+    }, 1000);
+
+    // CONNECT WEBSOCKET HERE
+    const ws = new LiveSocket(BASE_URL);
+    ws.connect();
+    setSocket(ws);
+
+    // LISTEN FOR MESSAGES
+    ws.onMessage((payload) => {
+      console.log("WS PAYLOAD:", payload);
+
+      setRows((prevRows) =>
+        prevRows.map((row) => {
+          const invoiceVal =
+            payload.data?.invoice_no ||
+            payload.invoice_no ||
+            payload.Invoice_No ||
+            payload.InvoiceNo ||
+            payload.invoice ||
+            null;
+
+          if (!invoiceVal) return row;
+
+          if (String(row.Invoice_No).trim() === String(invoiceVal).trim()) {
+            return {
+              ...row,
+              Status:
+                payload.data?.Status ||
+                payload.bot_status ||
+                payload.Status ||
+                payload.status ||
+                "Processing",
+              Err_Description:
+                payload.data?.Err_Description ?? row.Err_Description,
+              Elapsed_Time:
+                payload.data?.Elapsed_Time != null
+                  ? String(payload.data?.Elapsed_Time)
+                  : row.Elapsed_Time,
+            };
+          }
+
+          return row;
+        })
+      );
+    });
+
+    await processSequentially();
+  };
+
+  /*
+  useEffect(() => {
+    const socket = new LiveSocket(BASE_URL);
+    socket.connect();
+
+    socket.onMessage((payload) => {
+      console.log("WS PAYLOAD:", payload);
+
+      setRows((prevRows) => {
+        return prevRows.map((row) => {
+          // Identify invoice
+          const invoiceVal =
+            payload.data?.invoice_no ||
+            payload.invoice_no ||
+            payload.Invoice_No ||
+            payload.InvoiceNo ||
+            payload.invoice ||
+            null;
+
+          if (!invoiceVal) return row;
+
+          if (String(row.Invoice_No).trim() === String(invoiceVal).trim()) {
+            return {
+              ...row,
+              Status:
+                payload.data?.Status ||
+                payload.bot_status ||
+                payload.Status ||
+                payload.status ||
+                "Processing",
+              Err_Description:
+                payload.data?.Err_Description ?? row.Err_Description,
+              Elapsed_Time:
+                payload.data?.Elapsed_Time != null
+                  ? String(payload.data?.Elapsed_Time)
+                  : row.Elapsed_Time,
+            };
+          }
+
+          return row;
+        });
+      });
+    });
+
+    return () => {
+      console.log("Cleanup WebSocket Listener");
+    };
+  }, []);
+  */
+
+  const processSequentially = async () => {
+    const intervalId = setInterval(async () => {
+      // After each update, check if processingCount is 0
+      setRows((prevRows) => {
+        const processingCount = prevRows.filter(
+          (r) => r.Status === "Processing" || r.Status === "Downloading"
+        ).length;
+
+        if (processingCount === 0) {
+          clearInterval(intervalId);
+          setIsProcessing(false);
+          console.log("✅ All processing completed. Interval stopped.");
+        }
+
+        return prevRows;
+      });
+    }, 5000);
+  };
+
+  useEffect(() => {
+    if (!isProcessing) {
+      const hasProcessing = rows.some((r) => r.Status === "Processing");
+
+      if (!hasProcessing && isDbUpdated) {
+        console.log("🔥 All rows completed. Updating DB with final rows...");
+        updatedDBStatus(rows);
+
+        // CLOSE SOCKET
+        if (socket) {
+          setSocket(null);
+          console.log("🔌 WebSocket closed after completion");
+        }
+      }
+    }
+  }, [isDbUpdated, isProcessing]);
+
+  const updatedDBStatus = async (finalRows: ExpReportRow[]) => {
+    console.log("rows : " + JSON.stringify(finalRows));
+    try {
+      const apiUrl = `${BACKEND_URL}/expDownload/updateStatus`;
+      const response = await axios.post(apiUrl, finalRows);
+      console.log(response);
+    } catch (error) {
+      console.error("Error when DB update : ", error);
+    }
+  };
+
+  // Summary stats
+  const [total, processing, completed, errors] = useMemo(() => {
+    const total = rows.length;
+    const processingCount = rows.filter(
+      (r) => r.Status === "Processing"
+    ).length;
+    const completedCount = rows.filter((r) => r.Status === "Success").length;
+    const errorsCount = rows.filter((r) => r.Status === "Fail").length;
+    return [total, processingCount, completedCount, errorsCount];
+  }, [rows]);
+
+  return (
+    <div className="bg-transparent rounded-xl shadow-2xl p-8 w-full">
+      <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+        <h1 className="text-3xl font-bold">RPA Live Processing</h1>
+        <div className="flex">
+          <button
+            onClick={handleRunBot}
+            disabled={isProcessing}
+            type="button"
+            className="cursor-pointer text-sm font-medium px-3 py-1 rounded-full bg-green-800 text-white hover:bg-green-700 hover:text-white-300 transition duration-150"
+          >
+            {isProcessing ? "Processing..." : "Run BOT"}
+          </button>
+        </div>
+      </div>
+
+      <JobSummaryCard
+        total={total}
+        processing={processing}
+        success={completed}
+        failed={errors}
+        time={time}
+      />
+
+      {/* Table */}
+      <div className="overflow-x-auto max-h-[520px] rounded-lg border border-gray-400 shadow-md">
+        <table className="min-w-full divide-y divide-gray-400">
+          <thead className="bg-gray-200 sticky top-0">
+            <tr>
+              {[
+                "EXP Serial",
+                "ADSCODE",
+                "Status",
+                "EXP Year",
+                "Invoice No",
+                "Elapsed Time (sec.)",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-6 py-3 text-left text-[14px] font-bold text-black uppercase tracking-wider"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-400">
+            {rows.map((row, index) => (
+              <tr
+                key={index}
+                className="hover:bg-gray-100/50 transition-all duration-200"
+              >
+                <td className="px-6 py-4 text-sm font-semibold text-black rounded-l-lg">
+                  {row.EXP_Serial}
+                </td>
+
+                <td className="px-6 py-4 text-sm  text-black">{row.ADSCODE}</td>
+
+                <td className="px-6 py-4 text-sm font-semibold">
+                  <StatusBadge status={row.Status} />
+                </td>
+
+                <td className="px-6 py-4 text-sm text-black truncate max-w-[200px]">
+                  {row.EXP_Year}
+                </td>
+                <td className="px-6 py-4 text-sm text-black">
+                  {row.Invoice_No}
+                </td>
+                <td className="px-6 py-4 text-sm text-black font-mono rounded-r-lg flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2 text-black shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  {row.Elapsed_Time}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SettingsForm
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStart={(settingData) => runBot(settingData)}
+      />
+    </div>
+  );
+};
+
+export default ExpDownloadReport;
+
+
+
+
+============================================= OLD ================================================
+
+
+
+
+
+
+
+
+
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import axios from "axios";
+import JobSummaryCard from "../cards/JobSummaryCard";
+import SettingsForm, {
+  type SettingData,
+} from "../util/setting_form/SettingsForm";
+import { toast } from "react-toastify";
+import { LiveSocket } from "../../customHook/liveSocket";
+import StatusBadge from "../util/StatusBadge";
+
+export interface ExpReportRow {
+  ADSCODE: string;
+  EXP_Serial: string;
+  EXP_Year: string;
+  Invoice_No: string;
+  Status: "Processing" | "Fail" | "Pending" | "Success";
+  Err_Description: string | null;
+  Elapsed_Time: string | null;
+}
+
+const statusStyles: Record<ExpReportRow["Status"], string> = {
+  Processing: "text-blue-800",
+  Fail: "text-red-800",
+  Pending: "text-yellow-800",
+  Success: "text-green-800",
+};
+
+// --- COMPONENT START ---
+
+const ExpDownloadReport: React.FC<{
+  data: ExpReportRow[];
+  fileName: string;
+}> = ({ data, fileName }) => {
+  const { BASE_URL, BACKEND_URL, clientId } = useContext(AppContext);
+  const [rows, setRows] = useState<ExpReportRow[]>(data);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDbUpdated, setIsDbUpdated] = useState(false);
+  // const { username, password } = USER_CREDENTIALS;
+  const [time, setTime] = useState(0);
+
+  //Setting Forms
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // convertor
+  const convertToExpReportRows = (data: any[]): ExpReportRow[] => {
+    return data.map((item) => ({
+      ADSCODE: item.ADSCODE ?? "",
+      EXP_Serial: item.EXP_Serial ?? "",
+      EXP_Year: item.EXP_Year ?? "",
+      Invoice_No: item.invoice_no ?? "",
+      Status: (item.Status as ExpReportRow["Status"]) ?? "Pending",
+      Err_Description: item.Err_Description || null,
+      Elapsed_Time: item.Elapsed_Time ? String(item.Elapsed_Time) : null,
+    }));
+  };
+
+  // Update rows when data prop changes (initial load)
+  useEffect(() => {
+    setRows(data);
+  }, [data]);
+
+  // Update rows when data prop changes (initial load)
+  useEffect(() => {
+    if (!rows || rows.length === 0) {
+      setTime(0);
+      return;
+    }
+
+    // Sum all elapsed seconds
+    const totalSeconds = rows.reduce((acc, row) => {
+      const seconds = Number(row.Elapsed_Time); // convert string to number
+      return acc + (isNaN(seconds) ? 0 : seconds);
+    }, 0);
+
+    setTime(totalSeconds);
+  }, [rows]);
+
+  const handleRunBot = async () => {
+    setIsModalOpen(true);
+  };
+
+  const runBot = async (settingData: SettingData) => {
+    const filterData = rows.filter((r) => r.Status != "Success");
+    console.log("filterData : ", JSON.stringify(filterData));
+    if (filterData.length < 1) {
+      toast.error("No pending row found!");
+      return;
+    }
+    let logFileName;
+
+    const formData = new FormData();
+    formData.append("client_id", clientId);
+    formData.append("filename", fileName);
+    formData.append("username", settingData.username);
+    formData.append("password", settingData.password);
+    formData.append("botfile", "ExpDownload");
+    formData.append("folder", settingData.folder);
+    formData.append("excel_json", JSON.stringify(filterData));
+    formData.append("headless", "false");
+
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/api/start-run-json`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("RPA process initiated:", response);
+      logFileName = response.data.json_log_path;
+    } catch (error) {
+      console.error("Error initiating RPA process:", error);
+    }
+    console.log("Run BOT clicked");
+    setIsProcessing(true);
+    // Simulate processing delay
+    setTimeout(() => {
+      // Update all "Pending" rows to "Processing"
+      setRows((prevRows) =>
+        prevRows.map((r) =>
+          r.Status != "Success" ? { ...r, Status: "Processing" } : r
+        )
+      );
+    }, 1000);
+
+    await processSequentially("D:\\RPA\\logs", logFileName);
+  };
+
+  const handleUpdateStatus = async (pathName: string): Promise<any> => {
+    const apiUrl = `${BASE_URL}/api/fetch-log?path=${encodeURIComponent(
+      pathName
+    )}`;
+    console.log(apiUrl);
+    try {
+      const response = await axios.get<any>(apiUrl);
+      const jsonData = await response.data;
+
+      if (!Array.isArray(jsonData) || jsonData.length === 0) {
+        console.log(
+          "Log file not yet created or empty, retrying:",
+          response.data
+        );
+        return;
+      }
+
+      setRows((prevRows) => {
+        const updatedData = convertToExpReportRows(jsonData);
+        return prevRows.map((prev) => {
+          const updated = updatedData.find(
+            (u) => String(u.EXP_Serial) === String(prev.EXP_Serial)
+          );
+
+          console.log("updated : " + updated);
+          return updated ? { ...prev, ...updated } : prev;
+        });
+      });
+    } catch (error) {
+      console.error(`Error updating status :`, error);
+      throw error;
+    }
+  };
+
+  const processSequentially = async (dir: string, fileName: string) => {
+    const pathUrl = dir + "\\" + fileName;
+
+    const intervalId = setInterval(async () => {
+      await handleUpdateStatus(pathUrl);
+      // After each update, check if processingCount is 0
+      setRows((prevRows) => {
+        const processingCount = prevRows.filter(
+          (r) => r.Status === "Processing"
+        ).length;
+
+        if (processingCount === 0) {
+          clearInterval(intervalId);
+          setIsDbUpdated(true);
+          setIsProcessing(false);
+          console.log("✅ All processing completed. Interval stopped.");
+        }
+
+        return prevRows;
+      });
+    }, 5000);
+  };
+
+  useEffect(() => {
+    if (!isProcessing) {
+      const hasProcessing = rows.some((r) => r.Status === "Processing");
+
+      if (!hasProcessing && isDbUpdated) {
+        console.log("🔥 All rows completed. Updating DB with final rows...");
+        updatedDBStatus(rows);
+      }
+    }
+  }, [isDbUpdated, isProcessing]);
+
+  const updatedDBStatus = async (finalRows: ExpReportRow[]) => {
+    console.log("rows : " + JSON.stringify(finalRows));
+    try {
+      const apiUrl = `${BACKEND_URL}/expDownload/updateStatus`;
+      const response = await axios.post(apiUrl, finalRows);
+      console.log(response);
+    } catch (error) {
+      console.error("Error when DB update : ", error);
+    }
+  };
+
+  // Summary stats
+  const [total, processing, completed, errors] = useMemo(() => {
+    const total = rows.length;
+    const processingCount = rows.filter(
+      (r) => r.Status === "Processing"
+    ).length;
+    const completedCount = rows.filter((r) => r.Status === "Success").length;
+    const errorsCount = rows.filter((r) => r.Status === "Fail").length;
+    return [total, processingCount, completedCount, errorsCount];
+  }, [rows]);
+
+  return (
+    <div className="bg-transparent rounded-xl shadow-2xl p-8 w-full">
+      <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-3">
+        <h1 className="text-3xl font-bold">RPA Live Processing</h1>
+        <div className="flex">
+          <button
+            onClick={handleRunBot}
+            disabled={isProcessing}
+            type="button"
+            className="cursor-pointer text-sm font-medium px-3 py-1 rounded-full bg-green-800 text-white hover:bg-green-700 hover:text-white-300 transition duration-150"
+          >
+            {isProcessing ? "Processing..." : "Run BOT"}
+          </button>
+        </div>
+      </div>
+
+      <JobSummaryCard
+        total={total}
+        processing={processing}
+        success={completed}
+        failed={errors}
+        time={time}
+      />
+
+      {/* Table */}
+      <div className="overflow-x-auto max-h-[520px] rounded-lg border border-gray-400 shadow-md">
+        <table className="min-w-full divide-y divide-gray-400">
+          <thead className="bg-gray-200 sticky top-0">
+            <tr>
+              {[
+                "EXP Serial",
+                "ADSCODE",
+                "Status",
+                "EXP Year",
+                "Invoice No",
+                "Elapsed Time (sec.)",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-6 py-3 text-left text-[14px] font-bold text-black uppercase tracking-wider"
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-400">
+            {rows.map((row, index) => (
+              <tr
+                key={index}
+                className="hover:bg-gray-100/50 transition-all duration-200"
+              >
+                <td className="px-6 py-4 text-sm font-semibold text-black rounded-l-lg">
+                  {row.EXP_Serial}
+                </td>
+
+                <td className="px-6 py-4 text-sm  text-black">{row.ADSCODE}</td>
+
+                <td className="px-6 py-4 text-sm font-semibold">
+                  <StatusBadge status={row.Status} />
+                </td>
+
+                <td className="px-6 py-4 text-sm text-black truncate max-w-[200px]">
+                  {row.EXP_Year}
+                </td>
+                <td className="px-6 py-4 text-sm text-black">
+                  {row.Invoice_No}
+                </td>
+                <td className="px-6 py-4 text-sm text-black font-mono rounded-r-lg flex items-center">
+                  <svg
+                    className="w-4 h-4 mr-2 text-black shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  {row.Elapsed_Time}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <SettingsForm
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onStart={(settingData) => runBot(settingData)}
+      />
+    </div>
+  );
+};
+
+export default ExpDownloadReport;
+

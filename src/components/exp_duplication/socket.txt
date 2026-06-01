@@ -1,0 +1,27 @@
+WS PAYLOAD: 
+{
+    event: 'row_start', 
+    row: 1, 
+    exp_serial: '052993', b
+    ot_status: '🤖 Running Tasks', 
+    client_id: '101763'
+}
+bot_status: "🤖 Running Tasks
+"client_id: "101763"
+event: "row_start"exp_serial: "052993"row: 1[[Prototype]]: Object
+ReportTable.tsx:177 WS PAYLOAD: 
+{event: 'row_start_Done', row: 1, 
+exp_serial: '052993', bot_status: '🟢 Completed', client_id: '101763'}
+bot_status: "🟢 Completed"client_id: "101763"event: "row_start_Done"exp_serial: "052993"row: 1[[Prototype]]: Object
+ReportTable.tsx:177 WS PAYLOAD: 
+{event: 'row_start', row: 2, exp_serial: '052994', 
+bot_status: '🤖 Running Tasks', client_id: '101763'}bot_status: "🤖 Running Tasks"client_id: "101763"event: "row_start"exp_serial: "052994"row: 2[[Prototype]]: Object
+ReportTable.tsx:177 WS PAYLOAD: 
+{event: 'row_start_Done', row: 2, exp_serial: '052994', 
+bot_status: '🟢 Completed', client_id: '101763'}bot_status: "🟢 Completed"client_id: "101763"event: "row_start_Done"exp_serial: "052994"row: 2[[Prototype]]: Object
+ReportTable.tsx:177 WS PAYLOAD: {
+    "event": "bot_complete",
+    "excel_log": "D:\\RPA\\logs\\EXP_Duplicating_(All_Buyer)_Log_2025-12-08_2.xlsx",
+    "bot_status": "🟢 BOT Complete",
+    "client_id": "101763"
+}
